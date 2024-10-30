@@ -1,30 +1,38 @@
-# This is a basic workflow to help you get started with Actions
+name: Install Samba Server
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  workflow_dispatch:
+  workflow_dispatch:  # Allows manual trigger
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  setup-samba:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v2  # Checks out the code from the repository
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - name: Update package list
+        run: sudo apt-get update
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Install Samba
+        run: sudo apt-get install -y samba
+
+      - name: Configure Samba
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          # Create a shared directory
+          sudo mkdir -p /srv/samba/share
+          sudo chmod 777 /srv/samba/share
+
+          # Add a new configuration to the Samba config file
+          echo "[share]" | sudo tee -a /etc/samba/smb.conf
+          echo "   path = /srv/samba/share" | sudo tee -a /etc/samba/smb.conf
+          echo "   read only = no" | sudo tee -a /etc/samba/smb.conf
+          echo "   browsable = yes" | sudo tee -a /etc/samba/smb.conf
+
+      - name: Start Samba Service
+        run: |
+          sudo service smbd restart
+          sudo service nmbd restart
+
+      - name: Test Samba Setup
+        run: smbclient -L localhost -N
