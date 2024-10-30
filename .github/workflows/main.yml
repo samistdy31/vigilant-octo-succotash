@@ -53,7 +53,7 @@ jobs:
           sudo service smbd restart
           sudo service nmbd restart
 
-      - run: playit --secret ${{ secrets.PLAYIT_SECRET_KEY }}
+      - run: playit --secret ${{ secrets.pl }}
 
       - name: Cache Samba Share at the end
         uses: actions/cache@v3
