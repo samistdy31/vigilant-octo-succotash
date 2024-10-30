@@ -1,4 +1,4 @@
-name: Install Samba Server
+name: Install Samba Server and Cache Shares
 
 on:
   workflow_dispatch:  # Allows manual trigger
@@ -11,8 +11,30 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2  # Checks out the code from the repository
 
+      - name: Cache Samba Share
+        id: cache-samba
+        uses: actions/cache@v3
+        with:
+          path: /srv/samba/share/**  # Cache all contents of the share
+          key: smb-share-${{ runner.os }}-${{ github.sha }}  # Unique key based on OS and commit SHA
+
+      - name: Restore Samba Cache
+        if: steps.cache-samba.outputs.cache-hit != 'true'
+        run: |
+          echo "No cache hit. Initializing shared folder."
+          # Create the shared directory if no cache is found
+          sudo mkdir -p /srv/samba/share
+          sudo chmod 777 /srv/samba/share
+
       - name: Update package list
         run: sudo apt-get update
+
+      - name: Install Playit
+        run: |
+          curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
+          echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list
+          sudo apt update
+          sudo apt install -y playit
 
       - name: Install Samba and smbclient
         run: |
@@ -20,11 +42,7 @@ jobs:
 
       - name: Configure Samba
         run: |
-          # Create a shared directory
-          sudo mkdir -p /srv/samba/share
-          sudo chmod 777 /srv/samba/share
-
-          # Add a new configuration to the Samba config file
+          # Configure the Samba share
           echo "[share]" | sudo tee -a /etc/samba/smb.conf
           echo "   path = /srv/samba/share" | sudo tee -a /etc/samba/smb.conf
           echo "   read only = no" | sudo tee -a /etc/samba/smb.conf
@@ -35,5 +53,10 @@ jobs:
           sudo service smbd restart
           sudo service nmbd restart
 
-      - name: Test Samba Setup
-        run: smbclient -L localhost -N
+      - run: playit --secret ${{ secrets.PLAYIT_SECRET_KEY }}
+
+      - name: Cache Samba Share at the end
+        uses: actions/cache@v3
+        with:
+          path: /srv/samba/share/**  # Cache all contents of the share
+          key: smb-share-${{ runner.os }}-${{ github.sha }}-v2  # Version key to ensure cache is updated
