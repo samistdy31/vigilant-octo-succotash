@@ -14,8 +14,9 @@ jobs:
       - name: Update package list
         run: sudo apt-get update
 
-      - name: Install Samba
-        run: sudo apt-get install -y samba
+      - name: Install Samba and smbclient
+        run: |
+          sudo apt-get install -y samba smbclient
 
       - name: Configure Samba
         run: |
