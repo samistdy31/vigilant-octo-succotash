@@ -70,7 +70,9 @@ jobs:
       - name: Run Playit
         run: playit --secret ${{ secrets.pl }}
 
+      # Ensure cache is saved regardless of success, failure, or cancellation
       - name: Cache Samba Share at the end
+        if: always()  # Ensures this step runs regardless of the workflow outcome
         uses: actions/cache@v3
         with:
           path: /srv/samba/share/**  # Cache all contents of the share
