@@ -42,18 +42,27 @@ jobs:
 
       - name: Configure Samba
         run: |
-          # Configure the Samba share
+          # Configure Samba for anonymous access
           echo "[share]" | sudo tee -a /etc/samba/smb.conf
           echo "   path = /srv/samba/share" | sudo tee -a /etc/samba/smb.conf
           echo "   read only = no" | sudo tee -a /etc/samba/smb.conf
           echo "   browsable = yes" | sudo tee -a /etc/samba/smb.conf
+          echo "   guest ok = yes" | sudo tee -a /etc/samba/smb.conf
 
+          # Set permissions for the share directory
+          sudo mkdir -p /srv/samba/share
+          sudo chmod 777 /srv/samba/share  # Allows read/write access to all users
+          sudo chown -R nobody:nogroup /srv/samba/share  # Set ownership to 'nobody'
+
+          # Restart Samba to apply changes
+          
       - name: Start Samba Service
         run: |
           sudo service smbd restart
           sudo service nmbd restart
 
-      - run: playit --secret ${{ secrets.pl }}
+      - name: Run Playit
+        run: playit --secret ${{ secrets.pl }}
 
       - name: Cache Samba Share at the end
         uses: actions/cache@v3
