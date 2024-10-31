@@ -55,12 +55,17 @@ jobs:
           sudo chmod 777 /srv/samba/share  # Allows read/write access to all users
           sudo chown -R nobody:nogroup /srv/samba/share  # Set ownership to 'nobody'
 
-          # Restart Samba to apply changes
-          
+      - name: Create Samba User "rooter"
+        run: |
+          # Add the user to the system (no login shell or home directory needed)
+          sudo useradd -M -s /sbin/nologin rooter
+          # Set the Samba password for the user "rooter"
+          (echo "1234"; echo "1234") | sudo smbpasswd -a -s rooter
+
       - name: Start Samba Service
         run: |
-          sudo service smbd restart
-          sudo service nmbd restart
+          sudo systemctl restart smbd
+          sudo systemctl restart nmbd
 
       - name: Run Playit
         run: playit --secret ${{ secrets.pl }}
