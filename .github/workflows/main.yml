@@ -48,6 +48,7 @@ jobs:
           echo "   read only = no" | sudo tee -a /etc/samba/smb.conf
           echo "   browsable = yes" | sudo tee -a /etc/samba/smb.conf
           echo "   guest ok = yes" | sudo tee -a /etc/samba/smb.conf
+          sudo cat /etc/samba/smb.conf
 
           # Set permissions for the share directory
           sudo mkdir -p /srv/samba/share
