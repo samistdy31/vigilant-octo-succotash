@@ -46,7 +46,7 @@ jobs:
           echo "[share]" | sudo tee -a /etc/samba/smb.conf
           echo "   path = /srv/samba/share" | sudo tee -a /etc/samba/smb.conf
           echo "   read only = no" | sudo tee -a /etc/samba/smb.conf
-          echo "   browsable = yes" | sudo tee -a /etc/samba/smb.conf
+          echo "   browseable = yes" | sudo tee -a /etc/samba/smb.conf
           echo "   guest ok = yes" | sudo tee -a /etc/samba/smb.conf
           sudo cat /etc/samba/smb.conf
 
