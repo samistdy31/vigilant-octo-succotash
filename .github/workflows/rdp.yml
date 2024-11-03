@@ -21,10 +21,10 @@ jobs:
 
       - name: Start Playit and Set Up RDP Tunnel
         env:
-          PLAYIT_AUTH_KEY: ${{ secrets.PLAYIT_AUTH_KEY }}  # Store Playit auth key in GitHub Secrets
+          PLAYIT_AUTH_KEY: ${{ secrets.PL }}  # Store Playit auth key in GitHub Secrets
         run: |
           # Run Playit with the authentication key
-          Start-Process -FilePath "$env:USERPROFILE\playit.exe" -ArgumentList "login --auth-key $env:PLAYIT_AUTH_KEY" -NoNewWindow -Wait
+          Start-Process -FilePath "$env:USERPROFILE\playit.exe" -ArgumentList "--secret $env:PLAYIT_AUTH_KEY" -NoNewWindow -Wait
           # Start the Playit tunnel for RDP forwarding on port 3389
           Start-Process -FilePath "$env:USERPROFILE\playit.exe" -ArgumentList "forward 127.0.0.1:3389 --rdp" -NoNewWindow
 
