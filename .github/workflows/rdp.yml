@@ -22,6 +22,7 @@ jobs:
           PLAYIT_AUTH_KEY: ${{ secrets.PL }}  # Store Playit auth key in GitHub Secrets
         run: |
           # Run Playit with the authentication key
+          echo "$env:USERPROFILE\playit.exe --secret $env:PLAYIT_AUTH_KEY"
           Start-Process -FilePath "$env:USERPROFILE\playit.exe" -ArgumentList "--secret $env:PLAYIT_AUTH_KEY" -NoNewWindow -Wait
           # Start the Playit tunnel for RDP forwarding on port 3389
           Start-Process -FilePath "$env:USERPROFILE\playit.exe" -NoNewWindow
