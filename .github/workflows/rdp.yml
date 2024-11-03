@@ -1,9 +1,7 @@
 name: Playit RDP Tunnel
 
 on:
-  push:
-    branches:
-      - main  # Trigger on push to the main branch or any specific branch
+  workflow_dispatch:
 
 jobs:
   setup-rdp-tunnel:
