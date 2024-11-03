@@ -24,7 +24,7 @@ jobs:
           # Run Playit with the authentication key
           Start-Process -FilePath "$env:USERPROFILE\playit.exe" -ArgumentList "--secret $env:PLAYIT_AUTH_KEY" -NoNewWindow -Wait
           # Start the Playit tunnel for RDP forwarding on port 3389
-          Start-Process -FilePath "$env:USERPROFILE\playit.exe" -ArgumentList "forward 127.0.0.1:3389 --rdp" -NoNewWindow
+          Start-Process -FilePath "$env:USERPROFILE\playit.exe" -NoNewWindow
 
       - name: Keep the GitHub Action Runner Alive
         run: |
