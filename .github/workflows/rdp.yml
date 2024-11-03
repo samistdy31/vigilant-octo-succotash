@@ -1,0 +1,38 @@
+name: Playit RDP Tunnel
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the main branch
+
+jobs:
+  setup-rdp-tunnel:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Install Chocolatey
+        run: |
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+          iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+
+      - name: Install Playit
+        run: |
+          choco install playit -y
+          Start-Sleep -Seconds 5
+
+      - name: Configure Playit Tunnel for RDP
+        env:
+          PLAYIT_API_KEY: ${{ secrets.PLAYIT_API_KEY }}  # Add your Playit API key to GitHub Secrets
+        run: |
+          # Start the Playit tunnel with a configuration for RDP
+          playit login --api-key $env:PLAYIT_API_KEY
+          playit start --forward 127.0.0.1:3389 --rdp
+
+      - name: Keep Action Runner Alive
+        run: |
+          # Keeps the GitHub Actions runner alive so you can use the RDP session.
+          Start-Sleep -Seconds 3600  # Adjust based on how long you need the RDP session
