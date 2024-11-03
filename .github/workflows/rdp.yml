@@ -3,7 +3,7 @@ name: Playit RDP Tunnel
 on:
   push:
     branches:
-      - main  # Trigger on push to the main branch
+      - main  # Trigger on push to the main branch or any specific branch
 
 jobs:
   setup-rdp-tunnel:
@@ -13,26 +13,22 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v2
 
-      - name: Install Chocolatey
+      - name: Download and Install Playit
         run: |
-          Set-ExecutionPolicy Bypass -Scope Process -Force
-          [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-          iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+          # Download Playit executable using PowerShell
+          Invoke-WebRequest -Uri "https://playit-cloud.github.io/install/playit-latest.exe" -OutFile "$env:USERPROFILE\playit.exe"
+          Start-Sleep -Seconds 5  # Give some time for the download to complete
 
-      - name: Install Playit
-        run: |
-          choco install playit -y
-          Start-Sleep -Seconds 5
-
-      - name: Configure Playit Tunnel for RDP
+      - name: Start Playit and Set Up RDP Tunnel
         env:
-          PLAYIT_API_KEY: ${{ secrets.PLAYIT_API_KEY }}  # Add your Playit API key to GitHub Secrets
+          PLAYIT_AUTH_KEY: ${{ secrets.PLAYIT_AUTH_KEY }}  # Store Playit auth key in GitHub Secrets
         run: |
-          # Start the Playit tunnel with a configuration for RDP
-          playit login --api-key $env:PLAYIT_API_KEY
-          playit start --forward 127.0.0.1:3389 --rdp
+          # Run Playit with the authentication key
+          Start-Process -FilePath "$env:USERPROFILE\playit.exe" -ArgumentList "login --auth-key $env:PLAYIT_AUTH_KEY" -NoNewWindow -Wait
+          # Start the Playit tunnel for RDP forwarding on port 3389
+          Start-Process -FilePath "$env:USERPROFILE\playit.exe" -ArgumentList "forward 127.0.0.1:3389 --rdp" -NoNewWindow
 
-      - name: Keep Action Runner Alive
+      - name: Keep the GitHub Action Runner Alive
         run: |
           # Keeps the GitHub Actions runner alive so you can use the RDP session.
-          Start-Sleep -Seconds 3600  # Adjust based on how long you need the RDP session
+          Start-Sleep -Seconds 3600  # Adjust the duration based on your needs
