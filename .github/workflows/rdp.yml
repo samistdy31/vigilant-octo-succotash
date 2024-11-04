@@ -35,4 +35,4 @@ jobs:
       - name: Keep the GitHub Action Runner Alive
         run: |
           # Keeps the GitHub Actions runner alive so you can use the RDP session.
-          Start-Sleep -Seconds 3600  # Adjust the duration based on your needs
+          Start-Sleep -Seconds 11800  # Adjust the duration based on your needs
